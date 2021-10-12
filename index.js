@@ -1,0 +1,87 @@
+const fs = require("fs");
+const { MongoClient } = require("mongodb");
+
+/* host, port, rs, and default auth db */
+const MONGO_PORT = 27017;
+const MONGO_CLUSTER_ENDPOINT =
+  process.env.NODE_ENV !== "development"
+    ? process.env.MONGO_CLUSTER_ENDPOINT
+    : "localhost";
+const REPLICA_SET =
+  process.env.NODE_ENV !== "development" ? process.env.REPLICA_SET : "none";
+const MONGO_SUPER_AUTH_DB = "admin";
+
+/* superuser username, and superuser passswor */
+const MONGO_SUPER_USERNAME =
+  process.env.NODE_ENV !== "development"
+    ? process.env.MONGO_SUPER_USERNAME
+    : null;
+const MONGO_SUPER_PASSWORD =
+  process.env.NODE_ENV !== "development"
+    ? process.env.MONGO_SUPER_PASSWORD
+    : null;
+
+const connectionString =
+  process.env.NODE_ENV !== "development"
+    ? `mongodb://${MONGO_SUPER_USERNAME}:${MONGO_SUPER_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
+      `/?authSource=${MONGO_SUPER_AUTH_DB}&replicaSet=${REPLICA_SET}&retryWrites=false`
+    : `mongodb://${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}?retryWrites=false`;
+
+async function create_app_DB_credentials(database) {
+  let appCrednetials = {};
+  const regexp = /MONGO_[^_]*APP*/;
+  Object.keys(process.env)
+    .filter((envName) => regexp.test(envName))
+    .forEach((envName) => {
+      console.log("here");
+      console.log(envName.split("_")[2]);
+      appCrednetials[envName.split("_")[1]] = {
+        ...appCrednetials[envName.split("_")[1]],
+        [envName.split("_")[2]]: process.env[envName],
+      };
+    });
+
+  const promises = Object.keys(appCrednetials).map(async (appName) => {
+    console.log(`Creating credentials for app ${appName}`);
+    return database.addUser(
+      appCrednetials[appName]["USERNAME"],
+      appCrednetials[appName]["PASSWORD"],
+      {
+        roles: [
+          {
+            role: "readWrite",
+            db: appCrednetials[appName]["DB"],
+          },
+        ],
+      }
+    );
+  });
+  return Promise.allSettled(promises);
+}
+
+async function initialize_DB() {
+  let connectedClient = null;
+  try {
+    const mongodb_client = new MongoClient(connectionString, {
+      useUnifiedTopology: true,
+    });
+    console.log(connectionString);
+
+    connectedClient = await mongodb_client.connect();
+    const database = connectedClient.db(MONGO_SUPER_AUTH_DB);
+    const credentialed_apps = await create_app_DB_credentials(database)
+    console.log(credentialed_apps)
+    await connectedClient.close();
+    console.log("Closed client")
+    return 0;
+  } catch (error) {
+    console.log("Could not create users");
+    console.log(error);
+    connectedClient.close().then(
+      () => console.log("Closed client"),
+      (error) => console.log(`Could not close client ${error}`)
+    );
+    return 1;
+  }
+}
+initialize_DB();
