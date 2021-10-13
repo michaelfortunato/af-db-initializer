@@ -48,7 +48,7 @@ async function create_app_DB_credentials(database) {
   );
   const usersRemoved = await Promise.allSettled(remove_users_promises);
   console.log(usersRemoved)
-
+    console.log("here!")
   const promises = Object.keys(appCrednetials).map(async (appName) => {
     console.log(`Creating credentials for app ${appName}`);
     let roles = [{ role: "readWrite", db: appCrednetials[appName]["DB"] }];
