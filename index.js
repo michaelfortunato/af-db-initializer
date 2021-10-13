@@ -28,38 +28,38 @@ const connectionString =
     : `mongodb://${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}?retryWrites=false`;
 
 async function create_app_DB_credentials(database) {
-  let appCrednetials = {};
+  let appCredentials = {};
   const regexp = /MONGO_[^_]*APP*/;
   Object.keys(process.env)
     .filter((envName) => regexp.test(envName))
     .forEach((envName) => {
-      appCrednetials[envName.split("_")[1]] = {
-        ...appCrednetials[envName.split("_")[1]],
+      appCredentials[envName.split("_")[1]] = {
+        ...appCredentials[envName.split("_")[1]],
         [envName.split("_")[2]]: process.env[envName],
       };
     });
 
     
-  const remove_users_promises = Object.keys(appCrednetials).map(
+  const remove_users_promises = Object.keys(appCredentials).map(
     async (appName) => {
       console.log(`Removing credentials for app ${appName}`);
-      return database.removeUser(appCrednetials[appName]["USERNAME"]);
+      return database.removeUser(appCredentials[appName]["USERNAME"]);
     }
   );
   const usersRemoved = await Promise.allSettled(remove_users_promises);
   console.log(usersRemoved)
     console.log("here!")
-  const promises = Object.keys(appCrednetials).map(async (appName) => {
+  const promises = Object.keys(appCredentials).map(async (appName) => {
     console.log(`Creating credentials for app ${appName}`);
-    let roles = [{ role: "readWrite", db: appCrednetials[appName]["DB"] }];
+    let roles = [{ role: "readWrite", db: appCredentials[appName]["DB"] }];
     if (appName === "AUTHAPP")
       roles.push({
         role: "readWrite",
         db: process.env.MONGO_ACCOUNTAPP_DB,
       });
     return database.addUser(
-      appCrednetials[appName]["USERNAME"],
-      appCrednetials[appName]["PASSWORD"],
+      appCredentials[appName]["USERNAME"],
+      appCredentials[appName]["PASSWORD"],
       {
         roles: roles,
       }
