@@ -5,4 +5,4 @@ resources:
 - af-db-initializer.yaml
 images:
 - name: 207385250759.dkr.ecr.us-east-2.amazonaws.com/af-db-initializer
-  newTag: 264297d46263d74f757659c45b9755a2a2bdd593
+  newTag: d1378fecdfe8187750481050c1a930a4ff851781
