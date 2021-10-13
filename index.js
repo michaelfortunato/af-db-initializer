@@ -82,6 +82,7 @@ async function initialize_DB() {
     console.log(credentialed_apps);
     await connectedClient.close();
     console.log("Closed client");
+    console.log("🦄 Successfully created users");
     return 0;
   } catch (error) {
     console.log("Could not create users");
