@@ -24,7 +24,7 @@ const MONGO_SUPER_PASSWORD =
 const connectionString =
   process.env.NODE_ENV !== "development"
     ? `mongodb://${MONGO_SUPER_USERNAME}:${MONGO_SUPER_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
-      `/?authSource=${MONGO_SUPER_AUTH_DB}&replicaSet=${REPLICA_SET}&retryWrites=false`
+      `/?authSource=admin&replicaSet=${REPLICA_SET}&retryWrites=false`
     : `mongodb://${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}?retryWrites=false`;
 
 async function create_app_DB_credentials(database) {
@@ -33,26 +33,35 @@ async function create_app_DB_credentials(database) {
   Object.keys(process.env)
     .filter((envName) => regexp.test(envName))
     .forEach((envName) => {
-      console.log("here");
-      console.log(envName.split("_")[2]);
       appCrednetials[envName.split("_")[1]] = {
         ...appCrednetials[envName.split("_")[1]],
         [envName.split("_")[2]]: process.env[envName],
       };
     });
 
+    
+  const remove_users_promises = Object.keys(appCrednetials).map(
+    async (appName) => {
+      console.log(`Removing credentials for app ${appName}`);
+      return database.removeUser(appCrednetials[appName]["USERNAME"]);
+    }
+  );
+  const usersRemoved = await Promise.allSettled(remove_users_promises);
+  console.log(usersRemoved)
+
   const promises = Object.keys(appCrednetials).map(async (appName) => {
     console.log(`Creating credentials for app ${appName}`);
+    let roles = [{ role: "readWrite", db: appCrednetials[appName]["DB"] }];
+    if (appName === "AUTHAPP")
+      roles.push({
+        role: "readWrite",
+        db: process.env.MONGO_ACCOUNTAPP_DB,
+      });
     return database.addUser(
       appCrednetials[appName]["USERNAME"],
       appCrednetials[appName]["PASSWORD"],
       {
-        roles: [
-          {
-            role: "readWrite",
-            db: appCrednetials[appName]["DB"],
-          },
-        ],
+        roles: roles,
       }
     );
   });
@@ -69,10 +78,10 @@ async function initialize_DB() {
 
     connectedClient = await mongodb_client.connect();
     const database = connectedClient.db(MONGO_SUPER_AUTH_DB);
-    const credentialed_apps = await create_app_DB_credentials(database)
-    console.log(credentialed_apps)
+    const credentialed_apps = await create_app_DB_credentials(database);
+    console.log(credentialed_apps);
     await connectedClient.close();
-    console.log("Closed client")
+    console.log("Closed client");
     return 0;
   } catch (error) {
     console.log("Could not create users");

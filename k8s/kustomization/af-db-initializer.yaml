@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: af-db-initializer-job
+spec:
+  ttlSecondsAfterFinished: 100
+  template:
+    spec:
+      containers:
+      - name: af-db-initializer
+        image: 207385250759.dkr.ecr.us-east-2.amazonaws.com/af-db-initializer:latest
+        env:         
+        ########## CONNECTION DATA ###############
+        - name: MONGO_CLUSTER_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              key: clusterEndpoint
+              name: db-metadata
+        - name: REPLICA_SET
+          valueFrom:
+            secretKeyRef:
+              key: replica-set-name
+              name: db-metadata
+        ########## SUPER USER ###############
+        - name: MONGO_SUPER_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: superuser-db-credentials
+        - name: MONGO_SUPER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: superuser-db-credentials
+        ########## AUTH APP ###############
+        - name: MONGO_AUTHAPP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: auth-app-credentials
+        - name: MONGO_AUTHAPP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: auth-app-credentials
+        - name: MONGO_AUTHAPP_DB
+          valueFrom:
+            secretKeyRef:
+              key: authDB
+              name: auth-app-credentials
+        ########## ACCOUNT APP ###############
+        - name: MONGO_ACCOUNTAPP_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: account-app-db-credentials
+        - name: MONGO_ACCOUNTAPP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: account-app-db-credentials
+        - name: MONGO_ACCOUNTAPP_DB
+          valueFrom:
+            secretKeyRef:
+              key: authDB
+              name: account-app-db-credentials
+      restartPolicy: Never

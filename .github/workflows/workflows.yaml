@@ -47,21 +47,17 @@ jobs:
         # Push image to AWS ECR
         docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
     # Set image tag in kustomization
-    - name: pull from af-flux
-      uses: actions/checkout@v2
-      with:
-        repository: michaelfortunato/af-flux-repo
-        token: ${{secrets.RW_ACCOUNT_WIDE_TOKEN}}
-        ref: main
-        path: "af-flux-repo"
     - name: Set image tag
       run: |
-          cd ./af-flux-repo/infrastructure/base/db
+          cd ./k8s/kustomization
           kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
           cat kustomization.yaml
+    - name: create kubeconfig and apply the updated image
+      run: |
+          aws eks --region us-east-2 update-kubeconfig --name Art-Flex-Cluster
+          kubectl apply -k ./k8s/kustomization
     - name: Commit kustomization
       run: |
-          cd af-flux-repo
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git status
@@ -69,8 +65,7 @@ jobs:
     - name: Push changes to master
       uses: ad-m/github-push-action@master
       with:
-          directory: af-flux-repo
           github_token: ${{ secrets.RW_ACCOUNT_WIDE_TOKEN}}
-          repository: michaelfortunato/af-flux-repo
+          repository: michaelfortunato/af-db-initializer
           branch: main
           force: true 
