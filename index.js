@@ -27,6 +27,8 @@ const connectionString =
       `/?authSource=admin&replicaSet=${REPLICA_SET}&retryWrites=false`
     : `mongodb://${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}?retryWrites=false`;
 
+console.log(process.env)
+
 async function create_app_DB_credentials(database) {
   let appCredentials = {};
   const regexp = /MONGO_[^_]*APP*/;
