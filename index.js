@@ -3,31 +3,19 @@ const { MongoClient } = require("mongodb");
 
 /* host, port, rs, and default auth db */
 const MONGO_PORT = 27017;
-const MONGO_CLUSTER_ENDPOINT =
-  process.env.NODE_ENV !== "development"
-    ? process.env.MONGO_CLUSTER_ENDPOINT
-    : "localhost";
-const REPLICA_SET =
-  process.env.NODE_ENV !== "development" ? process.env.REPLICA_SET : "none";
+const MONGO_CLUSTER_ENDPOINT = process.env.MONGO_CLUSTER_ENDPOINT
+const REPLICA_SET = process.env.REPLICA_SET
 const MONGO_SUPER_AUTH_DB = "admin";
 
 /* superuser username, and superuser passswor */
-const MONGO_SUPER_USERNAME =
-  process.env.NODE_ENV !== "development"
-    ? process.env.MONGO_SUPER_USERNAME
-    : null;
-const MONGO_SUPER_PASSWORD =
-  process.env.NODE_ENV !== "development"
-    ? process.env.MONGO_SUPER_PASSWORD
-    : null;
+const MONGO_SUPER_USERNAME = process.env.MONGO_SUPER_USERNAME
+const MONGO_SUPER_PASSWORD = process.env.MONGO_SUPER_PASSWORD
 
 const connectionString =
   process.env.NODE_ENV !== "development"
     ? `mongodb://${MONGO_SUPER_USERNAME}:${MONGO_SUPER_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
       `/?authSource=admin&replicaSet=${REPLICA_SET}&retryWrites=false`
     : `mongodb://${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}?retryWrites=false`;
-
-console.log(process.env)
 
 async function create_app_DB_credentials(database) {
   let appCredentials = {};
@@ -50,7 +38,6 @@ async function create_app_DB_credentials(database) {
   );
   const usersRemoved = await Promise.allSettled(remove_users_promises);
   console.log(usersRemoved)
-    console.log("here!")
   const promises = Object.keys(appCredentials).map(async (appName) => {
     console.log(`Creating credentials for app ${appName}`);
     let roles = [{ role: "readWrite", db: appCredentials[appName]["DB"] }];
