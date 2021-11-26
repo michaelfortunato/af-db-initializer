@@ -52,10 +52,10 @@ jobs:
           cd ./k8s/kustomization
           kustomize edit set image $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$CONTAINER_IMAGE
           cat kustomization.yaml
-    - name: create kubeconfig and apply the updated image
-      run: |
-          aws eks --region us-east-2 update-kubeconfig --name Art-Flex-Cluster
-          kubectl apply -k ./k8s/kustomization
+    #- name: create kubeconfig and apply the updated image
+    #  run: |
+    #      aws eks --region us-east-2 update-kubeconfig --name Art-Flex-Cluster
+    #      kubectl apply -k ./k8s/kustomization
     - name: Commit kustomization
       run: |
           git config --local user.email "action@github.com"
