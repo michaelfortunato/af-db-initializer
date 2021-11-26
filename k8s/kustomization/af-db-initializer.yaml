@@ -12,12 +12,10 @@ spec:
         volumeMounts:
           - name: db-connection
             mountPath: /etc/secret-volume/mongo-secrets/db-connection
+          - name: mongo-users
+            mountPath: /etc/secret-volume/mongo-secrets/users
           - name: superuser-db-credentials
-            mountPath: /etc/secret-volume/mongo-secrets/users/super-user-db-credentials
-          - name: auth-app-db-credentials
-            mountPath: /etc/secret-volume/mongo-secrets/users/auth-app-db-credentials
-          - name: account-app-db-credentials
-            mountPath: /etc/secret-volume/mongo-secrets/users/account-app-db-credentials
+            mountPath: /etc/secret-volume/mongo-secrets/users/superuser-db-credentials
       volumes:
         - name: db-connection
           secret:
@@ -25,9 +23,10 @@ spec:
         - name: superuser-db-credentials
           secret: 
             secretName: superuser-db-credentials
-        - name: auth-app-db-credentials
-          secret:
-            secretName: auth-app-db-credentials
-        - name: account-app-db-credentials
-          secret:
-            secretName: account-app-db-credentials
+        - name: mongo-users
+          projected:
+            sources:
+              - secret:
+                  name: auth-app-db-credentials
+              - secret:
+                  name: account-app-db-credentials 

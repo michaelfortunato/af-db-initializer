@@ -13,9 +13,13 @@ async function createMongoUsers(database: Db) {
     appCredentials.map(({ username }) => database.removeUser(username))
   );
   return Promise.all(
-    appCredentials.map(({ username, password, databases }) =>
-      database.addUser(username, password, { roles: databases })
-    )
+    appCredentials.map(({ username, password, databases }) => {
+      const roles = databases.map(({ databaseName, databaseRole }) => ({
+        db: databaseName,
+        role: databaseRole
+      }));
+      return database.addUser(username, password, { roles });
+    })
   );
 }
 

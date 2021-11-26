@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Launch Program",
+      "runtimeExecutable": "npm",
+      "env": {
+        "SECRET_FOLDER_PATH": "./secret-folder"
+      },
+      "runtimeArgs": [
+        "run-script",
+        "dev"
+      ],
+      "cwd": "${workspaceFolder}"
+    } 
+  ]
+}

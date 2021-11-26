@@ -48,7 +48,7 @@ const authAppCredentials = YAML.parse(
 ) as {
   username: string;
   password: string;
-  databases: { db: string; role: string }[];
+  databases: { databaseName: string; databaseRole: string }[];
 };
 
 const accountAppCredentials = YAML.parse(
@@ -59,13 +59,14 @@ const accountAppCredentials = YAML.parse(
 ) as {
   username: string;
   password: string;
-  databases: { db: string; role: string }[];
+  databases: { databaseName: string; databaseRole: string }[];
 };
 
-const mongodbSuperuserConnectionString =
+const mongodbSuperuserConnectionString = `mongodb://${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}`;
+/*
   `mongodb://${MONGO_SUPER_USERNAME}:${MONGO_SUPER_PASSWORD}@${MONGO_CLUSTER_ENDPOINT}:${MONGO_PORT}` +
   `/?authSource=admin${REPLICA_SET_QUERY_PARAMETER}&retryWrites=false`;
-
+*/
 const appCredentials = [authAppCredentials, accountAppCredentials];
 
 export {

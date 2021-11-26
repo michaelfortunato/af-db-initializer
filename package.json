@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "rm -rf ./dist && tsc",
-    "dev": "NODE_ENV=development ts-node-dev --respawn src/index.js",
+    "dev": "NODE_ENV=development ts-node-dev --respawn src/index.ts",
     "test": "export NODE_ENV=development && npm run build && node --require dotenv/config ./dist/index.js dotenv_config_path=/home/mfortunato/AF/virtual-dev-fs/.env",
     "start": "npm run build && node ./dist/index.js"
   },
@@ -29,7 +29,8 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
-    "ts-node-dev": "^1.1.8"
+    "ts-node-dev": "^1.1.8",
+    "why-is-node-running": "^2.2.0"
   },
   "dependencies": {
     "fs": "*",
