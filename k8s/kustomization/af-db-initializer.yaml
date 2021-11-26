@@ -9,59 +9,25 @@ spec:
       containers:
       - name: af-db-initializer
         image: 207385250759.dkr.ecr.us-east-2.amazonaws.com/af-db-initializer:latest
-        env:         
-        ########## CONNECTION DATA ###############
-        - name: MONGO_CLUSTER_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              key: clusterEndpoint
-              name: db-metadata
-        - name: REPLICA_SET
-          valueFrom:
-            secretKeyRef:
-              key: replica-set-name
-              name: db-metadata
-        ########## SUPER USER ###############
-        - name: MONGO_SUPER_USERNAME
-          valueFrom:
-            secretKeyRef:
-              key: username
-              name: superuser-db-credentials
-        - name: MONGO_SUPER_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: superuser-db-credentials
-        ########## AUTH APP ###############
-        - name: MONGO_AUTHAPP_USERNAME
-          valueFrom:
-            secretKeyRef:
-              key: username
-              name: auth-app-credentials
-        - name: MONGO_AUTHAPP_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: auth-app-credentials
-        - name: MONGO_AUTHAPP_DB
-          valueFrom:
-            secretKeyRef:
-              key: authDB
-              name: auth-app-credentials
-        ########## ACCOUNT APP ###############
-        - name: MONGO_ACCOUNTAPP_USERNAME
-          valueFrom:
-            secretKeyRef:
-              key: username
-              name: account-app-db-credentials
-        - name: MONGO_ACCOUNTAPP_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: password
-              name: account-app-db-credentials
-        - name: MONGO_ACCOUNTAPP_DB
-          valueFrom:
-            secretKeyRef:
-              key: primaryDB
-              name: account-app-db-credentials
-      restartPolicy: Never
+        volumeMounts:
+          - name: db-connection
+            mountPath: /etc/secret-volume/mongo-secrets/db-connection
+          - name: superuser-db-credentials
+            mountPath: /etc/secret-volume/mongo-secrets/users/super-user-db-credentials
+          - name: auth-app-db-credentials
+            mountPath: /etc/secret-volume/mongo-secrets/users/auth-app-db-credentials
+          - name: account-app-db-credentials
+            mountPath: /etc/secret-volume/mongo-secrets/users/account-app-db-credentials
+      volumes:
+        - name: db-connection
+          secret:
+            secretName: db-connection 
+        - name: superuser-db-credentials
+          secret: 
+            secretName: superuser-db-credentials
+        - name: auth-app-db-credentials
+          secret:
+            secretName: auth-app-db-credentials
+        - name: account-app-db-credentials
+          secret:
+            secretName: account-app-db-credentials

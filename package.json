@@ -1,27 +1,40 @@
 {
-  "name": "af-db-initializer",
+  "name": "ar-auth-service",
   "version": "1.0.0",
-  "description": "script initializes mongodb",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=development node -r dotenv/config index.js",
-    "test": "NODE_ENV=test node index.js",
-    "start": "NODE_ENV=production node index.js"
+    "build": "rm -rf ./dist && tsc",
+    "dev": "NODE_ENV=development ts-node-dev --respawn src/index.js",
+    "test": "export NODE_ENV=development && npm run build && node --require dotenv/config ./dist/index.js dotenv_config_path=/home/mfortunato/AF/virtual-dev-fs/.env",
+    "start": "npm run build && node ./dist/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "af-db-initializer"
+    "url": "git+https://github.com/michaelfortunato/AR-Auth-Service.git"
   },
-  "keywords": [
-    "script"
-  ],
-  "author": "Michael Fortunato",
-  "license": "MIT",
-  "dependencies": {
-    "fs": "^0.0.1-security",
-    "mongodb": "^4.1.3"
+  "author": "michaelfortunato",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michaelfortunato/AR-Auth-Service/issues"
   },
+  "homepage": "https://github.com/michaelfortunato/AR-Auth-Service#readme",
   "devDependencies": {
-    "dotenv": "^10.0.0"
+    "@tsconfig/recommended": "^1.0.1",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.3.1",
+    "eslint": "^8.2.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
+    "ts-node-dev": "^1.1.8"
+  },
+  "dependencies": {
+    "fs": "*",
+    "mongodb": "^4.2.0",
+    "typescript": "^4.4.4",
+    "yaml": "^1.10.2"
   }
 }
